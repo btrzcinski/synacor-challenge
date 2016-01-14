@@ -7,6 +7,8 @@ if (NOT CMAKE_BUILD_TYPE)
         FORCE)
 endif ()
 
+add_definitions(-DUNICODE -D_UNICODE)
+
 add_subdirectory (be)
 add_subdirectory (fe)
 
