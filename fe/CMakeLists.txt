@@ -1,4 +1,4 @@
-add_executable (fe main.cpp)
+add_executable (fe main.cpp args.cpp codestr.cpp)
 set_property (TARGET fe PROPERTY CXX_STANDARD 11)
 set_property (TARGET fe PROPERTY CXX_STANDARD_REQUIRED ON)
 

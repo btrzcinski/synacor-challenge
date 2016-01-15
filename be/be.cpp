@@ -1,6 +1,22 @@
 #include "be.h"
 
-int Backend::test()
+#include <iostream>
+
+using namespace Backend;
+
+using std::uint16_t;
+
+VirtualMachine::VirtualMachine()
 {
-	return 1;
+	
+}
+
+VirtualMachine::~VirtualMachine()
+{
+	
+}
+
+void VirtualMachine::next_word(uint16_t word)
+{
+	std::cout << word << std::endl;
 }

@@ -1,4 +1,13 @@
+#include <cstdint>
+
 namespace Backend
 {
-	int test();
+	class VirtualMachine
+	{
+	public:
+		VirtualMachine();
+		virtual ~VirtualMachine();
+		
+		void next_word(std::uint16_t word);
+	};
 }
