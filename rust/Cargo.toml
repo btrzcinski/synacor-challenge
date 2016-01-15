@@ -1,0 +1,5 @@
+[package]
+
+name = "synacor-challenge"
+version = "0.0.1"
+authors = [ "Barnett Trzcinski <btrzcinski@gmail.com>" ]
