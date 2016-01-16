@@ -40,6 +40,7 @@ namespace Backend
 
         void add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn);
 
+        bool halt_fn();
         bool out_fn();
         bool nop_fn();
 
