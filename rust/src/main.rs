@@ -1,7 +1,10 @@
-use std::env;
+mod args;
+use args::*;
 
 fn main() {
-    for argument in env::args() {
-        println!("{}", argument);
+    match parse_args() {
+        ArgSpec::None => println!("Usage: {} [-f|-c] [filename|code]", prog_name()),
+        ArgSpec::Code { code } => println!("Interpreting code: {}", code),
+        ArgSpec::File { filename } => println!("Interpreting binary file: {}", filename),
     }
 }
