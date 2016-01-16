@@ -1,6 +1,7 @@
 #include "be.h"
 
 #include <iostream>
+#include <stdexcept>
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
 
@@ -9,6 +10,7 @@ using namespace Backend;
 using std::uint16_t;
 
 VirtualMachine::VirtualMachine() :
+    running(true),
     expectation(Expectation::Instruction),
     instruction(nullptr)
 {
@@ -20,15 +22,20 @@ VirtualMachine::~VirtualMachine()
 {
 }
 
-void VirtualMachine::next_word(uint16_t word)
+bool VirtualMachine::next_word(uint16_t word)
 {
+    if (!running)
+    {
+        throw std::logic_error("The VM is halted");
+    }
+
     if (expectation == Expectation::Instruction)
     {
         auto mappedInstruction = opcodeInstructionMap.find(word);
         if (mappedInstruction == opcodeInstructionMap.end())
         {
             std::cerr << "Warning: unknown opcode " << word << std::endl;
-            return;
+            return running;
         }
 
         instruction = &(mappedInstruction->second);
@@ -40,7 +47,7 @@ void VirtualMachine::next_word(uint16_t word)
         }
         else
         {
-            CALL_MEMBER_FN(this, instruction->fn)();
+            running = CALL_MEMBER_FN(this, instruction->fn)();
         }
     }
     else if (expectation == Expectation::Argument)
@@ -48,10 +55,12 @@ void VirtualMachine::next_word(uint16_t word)
         arguments.push_back(word);
         if (arguments.size() == instruction->numArguments)
         {
-            CALL_MEMBER_FN(this, instruction->fn)();
+            running = CALL_MEMBER_FN(this, instruction->fn)();
             expectation = Expectation::Instruction;
         }
     }
+
+    return running;
 }
 
 void VirtualMachine::add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn)
@@ -59,7 +68,7 @@ void VirtualMachine::add_instruction(std::uint16_t opcode, int numArguments, Ins
     opcodeInstructionMap.emplace(opcode, Instruction(opcode, numArguments, fn));
 }
 
-void VirtualMachine::out_fn()
+bool VirtualMachine::out_fn()
 {
     // Opcode 19
     // OUT a
@@ -68,12 +77,16 @@ void VirtualMachine::out_fn()
     auto arg = arguments.at(0);
     char ascii(arg);
     std::cout << ascii;
+
+    return true;
 }
 
 
-void VirtualMachine::nop_fn()
+bool VirtualMachine::nop_fn()
 {
     // Opcode 21
     // NOP
     // Do nothing.
+    
+    return true;
 }

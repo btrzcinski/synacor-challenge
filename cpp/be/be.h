@@ -11,7 +11,9 @@ namespace Backend
 		VirtualMachine();
 		virtual ~VirtualMachine();
 		
-		void next_word(std::uint16_t word);
+        // Returns true if the VM will continue to run after this word.
+        // e.g.: false means the VM halted.
+		bool next_word(std::uint16_t word);
 
     private:
         enum class Expectation
@@ -20,7 +22,7 @@ namespace Backend
             Argument
         };
 
-        typedef void (VirtualMachine::*InstructionFn)(void);
+        typedef bool (VirtualMachine::*InstructionFn)(void);
 
         struct Instruction
         {
@@ -38,8 +40,10 @@ namespace Backend
 
         void add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn);
 
-        void out_fn();
-        void nop_fn();
+        bool out_fn();
+        bool nop_fn();
+
+        bool running;
 
         Expectation expectation;
         Instruction const* instruction;

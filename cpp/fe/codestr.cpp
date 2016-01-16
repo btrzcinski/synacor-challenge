@@ -30,7 +30,10 @@ void Frontend::interpret_code_str(std::string const& code)
 	VirtualMachine vm;
 	for (auto const cp : code_points)
 	{
-		vm.next_word(cp);
+		if (!vm.next_word(cp))
+        {
+            break;
+        }
 	}
 }
 
