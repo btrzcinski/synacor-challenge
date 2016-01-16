@@ -12,6 +12,7 @@ VirtualMachine::VirtualMachine() :
     expectation(Expectation::Instruction),
     instruction(nullptr)
 {
+    add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
 }
 
@@ -58,10 +59,21 @@ void VirtualMachine::add_instruction(std::uint16_t opcode, int numArguments, Ins
     opcodeInstructionMap.emplace(opcode, Instruction(opcode, numArguments, fn));
 }
 
+void VirtualMachine::out_fn()
+{
+    // Opcode 19
+    // OUT a
+    // Write the character represented by ascii code <a> to the terminal
+    
+    auto arg = arguments.at(0);
+    char ascii(arg);
+    std::cout << ascii;
+}
+
+
 void VirtualMachine::nop_fn()
 {
-    // NOP = opcode 21
+    // Opcode 21
+    // NOP
     // Do nothing.
- 
-    std::cout << "NOP" << std::endl;   
 }

@@ -19,6 +19,8 @@ int main(int argc, char *argv[])
 		default:
 			std::cout << "Only -c option is supported" << std::endl;
 	}
+
+    std::cout << std::endl;
 	
 	return 0;
 }

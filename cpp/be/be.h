@@ -38,6 +38,7 @@ namespace Backend
 
         void add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn);
 
+        void out_fn();
         void nop_fn();
 
         Expectation expectation;
