@@ -21,6 +21,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
 
     add_instruction(0,  0, &VirtualMachine::halt_fn);
     add_instruction(6,  1, &VirtualMachine::jmp_fn);
+    add_instruction(7,  2, &VirtualMachine::jt_fn);
     add_instruction(9,  3, &VirtualMachine::add_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
@@ -127,10 +128,26 @@ bool VirtualMachine::jmp_fn()
     // Jump the PC to a.
 
     auto a = arguments.at(0);
+    a = lookup_value(a);
 
-    // Because the PC always increments by 1 after a call,
-    // we want to jump the PC to a - 1.
-    program_counter = a - 1;
+    jump_pc_to(a);
+
+    return true;
+}
+
+bool VirtualMachine::jt_fn()
+{
+    // Opcode 7
+    // JT a b
+    // If a != 0, jump the PC to b.
+
+    auto a = arguments.at(0);
+    auto b = arguments.at(1);
+
+    if (lookup_value(a) != 0)
+    {
+        jump_pc_to(lookup_value(b));
+    }
 
     return true;
 }
@@ -179,3 +196,11 @@ bool VirtualMachine::nop_fn()
     
     return true;
 }
+
+void VirtualMachine::jump_pc_to(std::uint16_t address)
+{
+    // Because the PC always increments by 1 after a call,
+    // we want to jump the PC to a - 1.
+    program_counter = address - 1;
+}
+

@@ -51,9 +51,12 @@ namespace Backend
 
         bool halt_fn();
         bool jmp_fn();
+        bool jt_fn();
         bool add_fn();
         bool out_fn();
         bool nop_fn();
+
+        void jump_pc_to(std::uint16_t address);
 
         bool running;
 
