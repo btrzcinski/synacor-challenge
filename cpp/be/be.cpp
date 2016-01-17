@@ -24,6 +24,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(2,  1, &VirtualMachine::push_fn);
     add_instruction(3,  1, &VirtualMachine::pop_fn);
     add_instruction(4,  3, &VirtualMachine::eq_fn);
+    add_instruction(5,  3, &VirtualMachine::gt_fn);
     add_instruction(6,  1, &VirtualMachine::jmp_fn);
     add_instruction(7,  2, &VirtualMachine::jt_fn);
     add_instruction(8,  2, &VirtualMachine::jf_fn);
@@ -192,6 +193,28 @@ bool VirtualMachine::eq_fn()
     auto c = lookup_value(arguments.at(2));
 
     if (b == c)
+    {
+        registers.at(a) = 1;
+    }
+    else
+    {
+        registers.at(a) = 0;
+    }
+
+    return true;
+}
+
+bool VirtualMachine::gt_fn()
+{
+    // Opcode 5
+    // GT a b c
+    // Set a to 1 if b > c; else, set a to 0.
+
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
+
+    if (b > c)
     {
         registers.at(a) = 1;
     }

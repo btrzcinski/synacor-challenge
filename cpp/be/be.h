@@ -58,6 +58,7 @@ namespace Backend
         bool push_fn();
         bool pop_fn();
         bool eq_fn();
+        bool gt_fn();
         bool jmp_fn();
         bool jt_fn();
         bool jf_fn();
