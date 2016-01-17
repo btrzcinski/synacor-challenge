@@ -20,8 +20,10 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     memory.fill(0);
 
     add_instruction(0,  0, &VirtualMachine::halt_fn);
+    add_instruction(1,  2, &VirtualMachine::set_fn);
     add_instruction(6,  1, &VirtualMachine::jmp_fn);
     add_instruction(7,  2, &VirtualMachine::jt_fn);
+    add_instruction(8,  2, &VirtualMachine::jf_fn);
     add_instruction(9,  3, &VirtualMachine::add_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
@@ -121,6 +123,25 @@ bool VirtualMachine::halt_fn()
     return false;
 }
 
+bool VirtualMachine::set_fn()
+{
+    // Opcode 1
+    // SET a b
+    // Set register a to the value of b.
+    
+    auto a = arguments.at(0);
+    auto b = arguments.at(1);
+
+    if (a < 32768 || a > 32776)
+    {
+        throw std::out_of_range("Register for SET must be in [32768,32776]");
+    }
+
+    registers.at(a - 32768) = lookup_value(b);
+
+    return true;
+}
+
 bool VirtualMachine::jmp_fn()
 {
     // Opcode 6
@@ -145,6 +166,23 @@ bool VirtualMachine::jt_fn()
     auto b = arguments.at(1);
 
     if (lookup_value(a) != 0)
+    {
+        jump_pc_to(lookup_value(b));
+    }
+
+    return true;
+}
+
+bool VirtualMachine::jf_fn()
+{
+    // Opcode 8
+    // JF a b
+    // If a == 0, jump the PC to b.
+
+    auto a = arguments.at(0);
+    auto b = arguments.at(1);
+
+    if (lookup_value(a) == 0)
     {
         jump_pc_to(lookup_value(b));
     }

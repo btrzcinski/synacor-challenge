@@ -50,8 +50,10 @@ namespace Backend
         std::uint16_t lookup_value(std::uint16_t value);
 
         bool halt_fn();
+        bool set_fn();
         bool jmp_fn();
         bool jt_fn();
+        bool jf_fn();
         bool add_fn();
         bool out_fn();
         bool nop_fn();
