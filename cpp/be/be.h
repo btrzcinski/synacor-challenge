@@ -63,6 +63,7 @@ namespace Backend
         bool jt_fn();
         bool jf_fn();
         bool add_fn();
+        bool mult_fn();
         bool and_fn();
         bool or_fn();
         bool not_fn();

@@ -29,6 +29,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(7,  2, &VirtualMachine::jt_fn);
     add_instruction(8,  2, &VirtualMachine::jf_fn);
     add_instruction(9,  3, &VirtualMachine::add_fn);
+    add_instruction(10, 3, &VirtualMachine::mult_fn);
     add_instruction(12, 3, &VirtualMachine::and_fn);
     add_instruction(13, 3, &VirtualMachine::or_fn);
     add_instruction(14, 2, &VirtualMachine::not_fn);
@@ -292,6 +293,23 @@ bool VirtualMachine::add_fn()
 
     registers.at(a) = result;
 
+    return true;
+}
+
+bool VirtualMachine::mult_fn()
+{
+    // Opcode 10
+    // MULT a b c
+    // Store in a the product of b and c modulo 32768.
+
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
+
+    auto result = (b * c) % 32768;
+
+    registers.at(a) = result;
+    
     return true;
 }
 
