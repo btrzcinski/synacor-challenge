@@ -1,5 +1,7 @@
+#include <array>
 #include <cstdint>
 #include <functional>
+#include <stack>
 #include <unordered_map>
 #include <vector>
 
@@ -38,6 +40,9 @@ namespace Backend
             InstructionFn fn;
         };
 
+        std::uint16_t read_address(std::uint16_t address);
+        std::uint16_t write_address(std::uint16_t address, std::uint16_t value);
+
         void add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn);
 
         bool halt_fn();
@@ -51,5 +56,9 @@ namespace Backend
         std::vector<std::uint16_t> arguments;
 
         std::unordered_map<std::uint16_t, Instruction> opcodeInstructionMap;
+
+        std::stack<std::uint16_t> stack;
+        std::array<std::uint16_t, 8> registers;
+        std::array<std::uint16_t, 0x80> memory;
 	};
 }

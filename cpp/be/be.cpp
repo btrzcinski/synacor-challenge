@@ -14,6 +14,9 @@ VirtualMachine::VirtualMachine() :
     expectation(Expectation::Instruction),
     instruction(nullptr)
 {
+    registers.fill(0);
+    memory.fill(0);
+
     add_instruction(0,  0, &VirtualMachine::halt_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
@@ -64,7 +67,41 @@ bool VirtualMachine::next_word(uint16_t word)
     return running;
 }
 
-void VirtualMachine::add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn)
+uint16_t VirtualMachine::read_address(uint16_t address)
+{
+    // Is this address a register?
+    if (address > 0x7f)
+    {
+        auto register_num = address & 0x7f;
+        if (register_num > 7)
+        {
+            throw std::out_of_range("Register addresses must be in range [0,7]");
+        }
+
+        return registers.at(register_num);
+    }
+
+    return memory.at(address);
+}
+
+uint16_t VirtualMachine::write_address(uint16_t address, uint16_t value)
+{
+    // Is this address a register?
+    if (address > 0x7f)
+    {
+        auto register_num = address & 0x7f;
+        if (register_num > 7)
+        {
+            throw std::out_of_range("Register addresses must be in range [0,7]");
+        }
+
+        return registers.at(register_num);
+    }
+
+    return memory.at(address);
+}
+
+void VirtualMachine::add_instruction(uint16_t opcode, int numArguments, InstructionFn fn)
 {
     opcodeInstructionMap.emplace(opcode, Instruction(opcode, numArguments, fn));
 }
