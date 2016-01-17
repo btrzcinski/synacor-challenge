@@ -30,6 +30,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(8,  2, &VirtualMachine::jf_fn);
     add_instruction(9,  3, &VirtualMachine::add_fn);
     add_instruction(10, 3, &VirtualMachine::mult_fn);
+    add_instruction(11, 3, &VirtualMachine::mod_fn);
     add_instruction(12, 3, &VirtualMachine::and_fn);
     add_instruction(13, 3, &VirtualMachine::or_fn);
     add_instruction(14, 2, &VirtualMachine::not_fn);
@@ -310,6 +311,23 @@ bool VirtualMachine::mult_fn()
 
     registers.at(a) = result;
     
+    return true;
+}
+
+bool VirtualMachine::mod_fn()
+{
+    // Opcode 11
+    // MOD a b c
+    // Store in a the result of b modulo c.
+
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
+
+    auto result = b % c;
+
+    registers.at(a) = result;
+
     return true;
 }
 

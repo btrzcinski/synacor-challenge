@@ -64,6 +64,7 @@ namespace Backend
         bool jf_fn();
         bool add_fn();
         bool mult_fn();
+        bool mod_fn();
         bool and_fn();
         bool or_fn();
         bool not_fn();
