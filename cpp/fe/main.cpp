@@ -10,21 +10,21 @@ using namespace Frontend;
 
 int main(int argc, char *argv[])
 {
-	Arguments args(argc, argv);
+    Arguments args(argc, argv);
 
     try
     {    
-    	switch (args.type)
-    	{
-    		case Arguments::InputType::Code:
-    			interpret_code_str(args.arg);
-    			break;
+        switch (args.type)
+        {
+            case Arguments::InputType::Code:
+                interpret_code_str(args.arg);
+                break;
             case Arguments::InputType::File:
                 interpret_file(args.arg);
                 break;
-    		default:
-    			std::cout << "Only -c or -f options are supported" << std::endl;
-	    }
+            default:
+                std::cout << "Only -c or -f options are supported" << std::endl;
+        }
     }
     catch (std::exception const& ex)
     {
@@ -32,6 +32,6 @@ int main(int argc, char *argv[])
     }
 
     std::cout << std::endl;
-	
-	return 0;
+    
+    return 0;
 }

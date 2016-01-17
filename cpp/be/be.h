@@ -7,15 +7,15 @@
 
 namespace Backend
 {
-	class VirtualMachine
-	{
-	public:
-		VirtualMachine(std::vector<std::uint16_t> const& init_mem);
-		virtual ~VirtualMachine();
+    class VirtualMachine
+    {
+    public:
+        VirtualMachine(std::vector<std::uint16_t> const& init_mem);
+        virtual ~VirtualMachine();
 
         void run();
         bool is_running();
-		
+        
     private:
         enum class Expectation
         {
@@ -94,5 +94,5 @@ namespace Backend
         std::stack<std::uint16_t> stack;
         std::array<std::uint16_t, 8> registers;
         std::array<std::uint16_t, 0x8000> memory;
-	};
+    };
 }
