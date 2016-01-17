@@ -29,6 +29,9 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(7,  2, &VirtualMachine::jt_fn);
     add_instruction(8,  2, &VirtualMachine::jf_fn);
     add_instruction(9,  3, &VirtualMachine::add_fn);
+    add_instruction(12, 3, &VirtualMachine::and_fn);
+    add_instruction(13, 3, &VirtualMachine::or_fn);
+    add_instruction(14, 2, &VirtualMachine::not_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
 
@@ -284,6 +287,58 @@ bool VirtualMachine::add_fn()
     auto c = lookup_value(arguments.at(2));
 
     auto result = (b + c) % 32768;
+
+    registers.at(a) = result;
+
+    return true;
+}
+
+bool VirtualMachine::and_fn()
+{
+    // Opcode 12
+    // AND a b c
+    // Store in a the bitwise and of b and c.
+
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
+
+    auto result = b & c;
+
+    registers.at(a) = result;
+    
+    return true;
+}
+
+bool VirtualMachine::or_fn()
+{
+    // Opcode 13
+    // OR a b c
+    // Store in a the bitwise or of b and c.
+
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
+
+    auto result = b | c;
+
+    registers.at(a) = result;
+
+    return true;
+}
+
+bool VirtualMachine::not_fn()
+{
+    // Opcode 14
+    // NOT a b
+    // Store in a the bitwise inverse of b, taking care not to
+    // invert the most significant bit. (e.g., the inverse is
+    // only across the lower 15 bits)
+    
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+
+    auto result = 0x7fff & (~b);
 
     registers.at(a) = result;
 
