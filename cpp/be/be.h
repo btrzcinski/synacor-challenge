@@ -1,5 +1,6 @@
 #include <array>
 #include <cstdint>
+#include <fstream>
 #include <functional>
 #include <stack>
 #include <unordered_map>
@@ -94,5 +95,7 @@ namespace Backend
         std::stack<std::uint16_t> stack;
         std::array<std::uint16_t, 8> registers;
         std::array<std::uint16_t, 0x8000> memory;
+
+        std::ofstream input_log;
     };
 }

@@ -1,5 +1,6 @@
 #include "be.h"
 
+#include <cassert>
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -14,7 +15,8 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     running(true),
     expectation(Expectation::Instruction),
     instruction(nullptr),
-    program_counter(0)
+    program_counter(0),
+    input_log("input.log")
 {
     registers.fill(0);
     memory.fill(0);
@@ -478,6 +480,9 @@ bool VirtualMachine::in_fn()
     auto a = check_register_address(arguments.at(0));
     char val;
     std::cin.get(val);
+    input_log.put(val);
+    assert(!input_log.bad());
+    input_log.flush();
 
     registers.at(a) = uint16_t(val);
 
