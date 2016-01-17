@@ -59,7 +59,6 @@ void VirtualMachine::run()
     while (running)
     {
         auto word = memory.at(program_counter);
-        std::cerr << "PC = " << program_counter << ", word = " << word << std::endl;
         next_word(word);
         ++program_counter;
     }
@@ -478,7 +477,7 @@ bool VirtualMachine::in_fn()
 
     auto a = check_register_address(arguments.at(0));
     char val;
-    std::cin >> val;
+    std::cin.get(val);
 
     registers.at(a) = uint16_t(val);
 
