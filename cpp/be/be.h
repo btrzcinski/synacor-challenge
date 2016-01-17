@@ -49,8 +49,14 @@ namespace Backend
         // 32776..65535 throw an exception
         std::uint16_t lookup_value(std::uint16_t value);
 
+        // Turns an address [32768,32776] into [0,7], throwing an exception
+        // if the address is not in that range.
+        std::uint16_t check_register_address(std::uint16_t address);
+
         bool halt_fn();
         bool set_fn();
+        bool push_fn();
+        bool pop_fn();
         bool eq_fn();
         bool jmp_fn();
         bool jt_fn();

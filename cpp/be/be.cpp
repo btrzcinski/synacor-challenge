@@ -21,6 +21,8 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
 
     add_instruction(0,  0, &VirtualMachine::halt_fn);
     add_instruction(1,  2, &VirtualMachine::set_fn);
+    add_instruction(2,  1, &VirtualMachine::push_fn);
+    add_instruction(3,  1, &VirtualMachine::pop_fn);
     add_instruction(4,  3, &VirtualMachine::eq_fn);
     add_instruction(6,  1, &VirtualMachine::jmp_fn);
     add_instruction(7,  2, &VirtualMachine::jt_fn);
@@ -115,6 +117,16 @@ uint16_t VirtualMachine::lookup_value(uint16_t value)
     throw std::out_of_range("Values cannot be any higher than 32776");
 }
 
+uint16_t VirtualMachine::check_register_address(uint16_t address)
+{
+    if (address < 32768 || address > 32776)
+    {
+        throw std::out_of_range("Register for SET must be in [32768,32776]");
+    }
+
+    return address - 32768;
+}
+
 bool VirtualMachine::halt_fn()
 {
     // Opcode 0
@@ -130,17 +142,43 @@ bool VirtualMachine::set_fn()
     // SET a b
     // Set register a to the value of b.
     
-    auto a = arguments.at(0);
-    auto b = arguments.at(1);
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
 
-    if (a < 32768 || a > 32776)
-    {
-        throw std::out_of_range("Register for SET must be in [32768,32776]");
-    }
-
-    registers.at(a - 32768) = lookup_value(b);
+    registers.at(a) = b;
 
     return true;
+}
+
+bool VirtualMachine::push_fn()
+{
+    // Opcode 2
+    // PUSH a
+    // Push the value of a onto the stack.
+
+    auto a = lookup_value(arguments.at(0));
+
+    stack.push(a);
+
+    return true;
+}
+
+bool VirtualMachine::pop_fn()
+{
+    // Opcode 3
+    // POP a
+    // Set register a to the popped value off the stack.
+
+    if (stack.empty())
+    {
+        throw std::logic_error("Cannot pop off of an empty stack");
+    }
+
+    auto a = check_register_address(arguments.at(0));
+    registers.at(a) = stack.top();
+    stack.pop();
+
+    return true;    
 }
 
 bool VirtualMachine::eq_fn()
@@ -149,23 +187,17 @@ bool VirtualMachine::eq_fn()
     // EQ a b c
     // Set a to 1 if b == c; else, set a to 0.
 
-    auto a = arguments.at(0);
-    auto b = arguments.at(1);
-    auto c = arguments.at(2);
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
 
-    if (a < 32768 || a > 32776)
+    if (b == c)
     {
-        throw std::out_of_range("Register for EQ must be in [32768,32776]");
-    }
-
-    auto reg_a = a - 32768;
-    if (lookup_value(b) == lookup_value(c))
-    {
-        registers.at(reg_a) = 1;
+        registers.at(a) = 1;
     }
     else
     {
-        registers.at(reg_a) = 0;
+        registers.at(a) = 0;
     }
 
     return true;
@@ -177,8 +209,7 @@ bool VirtualMachine::jmp_fn()
     // JMP a
     // Jump the PC to a.
 
-    auto a = arguments.at(0);
-    a = lookup_value(a);
+    auto a = lookup_value(arguments.at(0));
 
     jump_pc_to(a);
 
@@ -191,12 +222,12 @@ bool VirtualMachine::jt_fn()
     // JT a b
     // If a != 0, jump the PC to b.
 
-    auto a = arguments.at(0);
-    auto b = arguments.at(1);
+    auto a = lookup_value(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
 
-    if (lookup_value(a) != 0)
+    if (a != 0)
     {
-        jump_pc_to(lookup_value(b));
+        jump_pc_to(b);
     }
 
     return true;
@@ -208,12 +239,12 @@ bool VirtualMachine::jf_fn()
     // JF a b
     // If a == 0, jump the PC to b.
 
-    auto a = arguments.at(0);
-    auto b = arguments.at(1);
+    auto a = lookup_value(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
 
-    if (lookup_value(a) == 0)
+    if (a == 0)
     {
-        jump_pc_to(lookup_value(b));
+        jump_pc_to(b);
     }
 
     return true;
@@ -225,19 +256,13 @@ bool VirtualMachine::add_fn()
     // ADD a b c
     // Store in a the sum of b and c.
     
-    auto a = arguments.at(0);
-    auto b = arguments.at(1);
-    auto c = arguments.at(2);
+    auto a = check_register_address(arguments.at(0));
+    auto b = lookup_value(arguments.at(1));
+    auto c = lookup_value(arguments.at(2));
 
-    auto result = (lookup_value(b) + lookup_value(c)) % 32768;
+    auto result = (b + c) % 32768;
 
-    // a is expected to be a register
-    if (a < 32768 || a > 32775)
-    {
-        throw std::out_of_range("Destination must be a register 0-7");
-    }
-
-    registers.at(a - 32768) = result;
+    registers.at(a) = result;
 
     return true;
 }
@@ -248,8 +273,8 @@ bool VirtualMachine::out_fn()
     // OUT a
     // Write the character represented by ascii code <a> to the terminal
     
-    auto arg = arguments.at(0);
-    char ascii(lookup_value(arg));
+    auto a = lookup_value(arguments.at(0));
+    char ascii(a);
     std::cout << ascii;
 
     return true;
