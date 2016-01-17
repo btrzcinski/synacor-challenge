@@ -51,6 +51,7 @@ namespace Backend
 
         bool halt_fn();
         bool set_fn();
+        bool eq_fn();
         bool jmp_fn();
         bool jt_fn();
         bool jf_fn();

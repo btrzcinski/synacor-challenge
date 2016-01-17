@@ -21,6 +21,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
 
     add_instruction(0,  0, &VirtualMachine::halt_fn);
     add_instruction(1,  2, &VirtualMachine::set_fn);
+    add_instruction(4,  3, &VirtualMachine::eq_fn);
     add_instruction(6,  1, &VirtualMachine::jmp_fn);
     add_instruction(7,  2, &VirtualMachine::jt_fn);
     add_instruction(8,  2, &VirtualMachine::jf_fn);
@@ -138,6 +139,34 @@ bool VirtualMachine::set_fn()
     }
 
     registers.at(a - 32768) = lookup_value(b);
+
+    return true;
+}
+
+bool VirtualMachine::eq_fn()
+{
+    // Opcode 4
+    // EQ a b c
+    // Set a to 1 if b == c; else, set a to 0.
+
+    auto a = arguments.at(0);
+    auto b = arguments.at(1);
+    auto c = arguments.at(2);
+
+    if (a < 32768 || a > 32776)
+    {
+        throw std::out_of_range("Register for EQ must be in [32768,32776]");
+    }
+
+    auto reg_a = a - 32768;
+    if (lookup_value(b) == lookup_value(c))
+    {
+        registers.at(reg_a) = 1;
+    }
+    else
+    {
+        registers.at(reg_a) = 0;
+    }
 
     return true;
 }
