@@ -53,6 +53,9 @@ namespace Backend
         // if the address is not in that range.
         std::uint16_t check_register_address(std::uint16_t address);
 
+        // Checks that an address is in the range [0,32767] and returns it back.
+        std::uint16_t check_memory_address(std::uint16_t address);        
+
         bool halt_fn();
         bool set_fn();
         bool push_fn();
@@ -68,6 +71,8 @@ namespace Backend
         bool and_fn();
         bool or_fn();
         bool not_fn();
+        bool rmem_fn();
+        bool wmem_fn();
         bool call_fn();
         bool ret_fn();
         bool out_fn();

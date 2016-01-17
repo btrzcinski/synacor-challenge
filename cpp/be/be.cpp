@@ -34,6 +34,8 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(12, 3, &VirtualMachine::and_fn);
     add_instruction(13, 3, &VirtualMachine::or_fn);
     add_instruction(14, 2, &VirtualMachine::not_fn);
+    add_instruction(15, 2, &VirtualMachine::rmem_fn);
+    add_instruction(16, 2, &VirtualMachine::wmem_fn);
     add_instruction(17, 1, &VirtualMachine::call_fn);
     add_instruction(18, 0, &VirtualMachine::ret_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
@@ -129,10 +131,20 @@ uint16_t VirtualMachine::check_register_address(uint16_t address)
 {
     if (address < 32768 || address > 32776)
     {
-        throw std::out_of_range("Register for SET must be in [32768,32776]");
+        throw std::out_of_range("Register addresses must be in [32768,32776]");
     }
 
     return address - 32768;
+}
+
+uint16_t VirtualMachine::check_memory_address(uint16_t address)
+{
+    if (address > 32767)
+    {
+        throw std::out_of_range("Memory addresses must be in [0,32767]");
+    }
+
+    return address;
 }
 
 bool VirtualMachine::halt_fn()
@@ -379,6 +391,34 @@ bool VirtualMachine::not_fn()
     auto result = 0x7fff & (~b);
 
     registers.at(a) = result;
+
+    return true;
+}
+
+bool VirtualMachine::rmem_fn()
+{
+    // Opcode 15
+    // RMEM a b
+    // Store in a the value at memory address b.
+
+    auto a = check_register_address(arguments.at(0));
+    auto b = check_memory_address(lookup_value(arguments.at(1)));
+
+    registers.at(a) = memory.at(b);
+
+    return true;
+}
+
+bool VirtualMachine::wmem_fn()
+{
+    // Opcode 16
+    // WMEM a b
+    // Store in memory address a the value of b.
+    
+    auto a = check_memory_address(lookup_value(arguments.at(0)));
+    auto b = lookup_value(arguments.at(1));
+
+    memory.at(a) = b;
 
     return true;
 }
