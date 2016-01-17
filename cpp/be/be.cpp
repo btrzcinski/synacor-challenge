@@ -63,8 +63,7 @@ void VirtualMachine::next_word(uint16_t word)
         auto mappedInstruction = opcodeInstructionMap.find(word);
         if (mappedInstruction == opcodeInstructionMap.end())
         {
-            std::cerr << "Warning: unknown opcode " << word << std::endl;
-            return;
+            throw std::out_of_range("Unknown opcode encountered");
         }
 
         instruction = &(mappedInstruction->second);
