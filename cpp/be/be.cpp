@@ -41,6 +41,7 @@ void VirtualMachine::run()
     while (running)
     {
         auto word = memory.at(program_counter);
+        std::cerr << "PC = " << program_counter << ", word = " << word << std::endl;
         next_word(word);
         ++program_counter;
     }
