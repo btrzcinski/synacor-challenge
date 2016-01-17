@@ -20,6 +20,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     memory.fill(0);
 
     add_instruction(0,  0, &VirtualMachine::halt_fn);
+    add_instruction(6,  1, &VirtualMachine::jmp_fn);
     add_instruction(9,  3, &VirtualMachine::add_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
@@ -117,6 +118,21 @@ bool VirtualMachine::halt_fn()
     // Stop execution and terminate the program.
 
     return false;
+}
+
+bool VirtualMachine::jmp_fn()
+{
+    // Opcode 6
+    // JMP a
+    // Jump the PC to a.
+
+    auto a = arguments.at(0);
+
+    // Because the PC always increments by 1 after a call,
+    // we want to jump the PC to a - 1.
+    program_counter = a - 1;
+
+    return true;
 }
 
 bool VirtualMachine::add_fn()
