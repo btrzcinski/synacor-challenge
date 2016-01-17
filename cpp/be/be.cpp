@@ -32,6 +32,8 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(12, 3, &VirtualMachine::and_fn);
     add_instruction(13, 3, &VirtualMachine::or_fn);
     add_instruction(14, 2, &VirtualMachine::not_fn);
+    add_instruction(17, 1, &VirtualMachine::call_fn);
+    add_instruction(18, 0, &VirtualMachine::ret_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
 
@@ -341,6 +343,39 @@ bool VirtualMachine::not_fn()
     auto result = 0x7fff & (~b);
 
     registers.at(a) = result;
+
+    return true;
+}
+
+bool VirtualMachine::call_fn()
+{
+    // Opcode 17
+    // CALL a
+    // Push (PC + 1) onto the stack, then jump to a.
+
+    auto a = lookup_value(arguments.at(0));
+
+    stack.push(program_counter + 1);
+    jump_pc_to(a);
+
+    return true;
+}
+
+bool VirtualMachine::ret_fn()
+{
+    // Opcode 18
+    // RET
+    // Pop a value off the stack, then jump to it.
+
+    if (stack.empty())
+    {
+        // Halt
+        return false;
+    }
+
+    auto jmp_loc = stack.top();
+    stack.pop();
+    jump_pc_to(jmp_loc);
 
     return true;
 }

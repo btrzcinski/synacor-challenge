@@ -66,6 +66,8 @@ namespace Backend
         bool and_fn();
         bool or_fn();
         bool not_fn();
+        bool call_fn();
+        bool ret_fn();
         bool out_fn();
         bool nop_fn();
 
