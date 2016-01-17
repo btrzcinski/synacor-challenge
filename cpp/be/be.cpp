@@ -20,10 +20,10 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     memory.fill(0);
 
     add_instruction(0,  0, &VirtualMachine::halt_fn);
+    add_instruction(9,  3, &VirtualMachine::add_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
 
-    // use init_mem to initialize memory
     std::copy(init_mem.cbegin(), init_mem.cend(), memory.begin());
 }
 
@@ -90,43 +90,24 @@ void VirtualMachine::next_word(uint16_t word)
     }
 }
 
-uint16_t VirtualMachine::read_address(uint16_t address)
-{
-    // Is this address a register?
-    if (address > 0x7f)
-    {
-        auto register_num = address & 0x7f;
-        if (register_num > 7)
-        {
-            throw std::out_of_range("Register addresses must be in range [0,7]");
-        }
-
-        return registers.at(register_num);
-    }
-
-    return memory.at(address);
-}
-
-uint16_t VirtualMachine::write_address(uint16_t address, uint16_t value)
-{
-    // Is this address a register?
-    if (address > 0x7f)
-    {
-        auto register_num = address & 0x7f;
-        if (register_num > 7)
-        {
-            throw std::out_of_range("Register addresses must be in range [0,7]");
-        }
-
-        return registers.at(register_num);
-    }
-
-    return memory.at(address);
-}
-
 void VirtualMachine::add_instruction(uint16_t opcode, int numArguments, InstructionFn fn)
 {
     opcodeInstructionMap.emplace(opcode, Instruction(opcode, numArguments, fn));
+}
+
+uint16_t VirtualMachine::lookup_value(uint16_t value)
+{
+    if (value < 32768)
+    {
+        return value;
+    }
+
+    if (value > 32767 && value < 32776)
+    {
+        return registers.at(value - 32768);
+    }
+
+    throw std::out_of_range("Values cannot be any higher than 32776");
 }
 
 bool VirtualMachine::halt_fn()
@@ -138,6 +119,29 @@ bool VirtualMachine::halt_fn()
     return false;
 }
 
+bool VirtualMachine::add_fn()
+{
+    // Opcode 9
+    // ADD a b c
+    // Store in a the sum of b and c.
+    
+    auto a = arguments.at(0);
+    auto b = arguments.at(1);
+    auto c = arguments.at(2);
+
+    auto result = (lookup_value(b) + lookup_value(c)) % 32768;
+
+    // a is expected to be a register
+    if (a < 32768 || a > 32775)
+    {
+        throw std::out_of_range("Destination must be a register 0-7");
+    }
+
+    registers.at(a - 32768) = result;
+
+    return true;
+}
+
 bool VirtualMachine::out_fn()
 {
     // Opcode 19
@@ -145,12 +149,11 @@ bool VirtualMachine::out_fn()
     // Write the character represented by ascii code <a> to the terminal
     
     auto arg = arguments.at(0);
-    char ascii(arg);
+    char ascii(lookup_value(arg));
     std::cout << ascii;
 
     return true;
 }
-
 
 bool VirtualMachine::nop_fn()
 {

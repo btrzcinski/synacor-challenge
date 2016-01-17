@@ -42,12 +42,15 @@ namespace Backend
 
         void next_word(std::uint16_t word);
 
-        std::uint16_t read_address(std::uint16_t address);
-        std::uint16_t write_address(std::uint16_t address, std::uint16_t value);
-
         void add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn);
 
+        // 0..32767 returns the value itself
+        // 32768..32775 return the values from registers 0-7
+        // 32776..65535 throw an exception
+        std::uint16_t lookup_value(std::uint16_t value);
+
         bool halt_fn();
+        bool add_fn();
         bool out_fn();
         bool nop_fn();
 
