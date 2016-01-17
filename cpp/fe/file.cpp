@@ -27,7 +27,6 @@ namespace
 void Frontend::interpret_file(std::string const& filename)
 {
 	auto code_points = code_points_from_file(filename);
-    std::cout << "Loaded " << code_points.size() << " code points" << std::endl;
 	
 	VirtualMachine vm(code_points);
     vm.run();

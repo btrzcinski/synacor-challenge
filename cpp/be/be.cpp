@@ -39,6 +39,7 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(17, 1, &VirtualMachine::call_fn);
     add_instruction(18, 0, &VirtualMachine::ret_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
+    add_instruction(20, 1, &VirtualMachine::in_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
 
     std::copy(init_mem.cbegin(), init_mem.cend(), memory.begin());
@@ -465,6 +466,21 @@ bool VirtualMachine::out_fn()
     auto a = lookup_value(arguments.at(0));
     char ascii(a);
     std::cout << ascii;
+
+    return true;
+}
+
+bool VirtualMachine::in_fn()
+{
+    // Opcode 20
+    // IN a
+    // Read a character from the terminal and write its ascii code to <a>
+
+    auto a = check_register_address(arguments.at(0));
+    char val;
+    std::cin >> val;
+
+    registers.at(a) = uint16_t(val);
 
     return true;
 }

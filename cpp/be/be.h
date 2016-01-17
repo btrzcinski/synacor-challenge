@@ -76,6 +76,7 @@ namespace Backend
         bool call_fn();
         bool ret_fn();
         bool out_fn();
+        bool in_fn();
         bool nop_fn();
 
         void jump_pc_to(std::uint16_t address);
