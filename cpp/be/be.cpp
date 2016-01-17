@@ -1,5 +1,6 @@
 #include "be.h"
 
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
@@ -9,10 +10,11 @@ using namespace Backend;
 
 using std::uint16_t;
 
-VirtualMachine::VirtualMachine() :
+VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     running(true),
     expectation(Expectation::Instruction),
-    instruction(nullptr)
+    instruction(nullptr),
+    program_counter(0)
 {
     registers.fill(0);
     memory.fill(0);
@@ -20,13 +22,36 @@ VirtualMachine::VirtualMachine() :
     add_instruction(0,  0, &VirtualMachine::halt_fn);
     add_instruction(19, 1, &VirtualMachine::out_fn);
     add_instruction(21, 0, &VirtualMachine::nop_fn);
+
+    // use init_mem to initialize memory
+    std::copy(init_mem.cbegin(), init_mem.cend(), memory.begin());
 }
 
 VirtualMachine::~VirtualMachine()
 {
 }
 
-bool VirtualMachine::next_word(uint16_t word)
+void VirtualMachine::run()
+{
+    if (!running)
+    {
+        throw std::logic_error("The VM is halted");
+    }
+
+    while (running)
+    {
+        auto word = memory.at(program_counter);
+        next_word(word);
+        ++program_counter;
+    }
+}
+
+bool VirtualMachine::is_running()
+{
+    return running;
+}
+
+void VirtualMachine::next_word(uint16_t word)
 {
     if (!running)
     {
@@ -39,7 +64,7 @@ bool VirtualMachine::next_word(uint16_t word)
         if (mappedInstruction == opcodeInstructionMap.end())
         {
             std::cerr << "Warning: unknown opcode " << word << std::endl;
-            return running;
+            return;
         }
 
         instruction = &(mappedInstruction->second);
@@ -63,8 +88,6 @@ bool VirtualMachine::next_word(uint16_t word)
             expectation = Expectation::Instruction;
         }
     }
-
-    return running;
 }
 
 uint16_t VirtualMachine::read_address(uint16_t address)

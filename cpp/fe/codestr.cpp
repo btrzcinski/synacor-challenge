@@ -27,14 +27,8 @@ void Frontend::interpret_code_str(std::string const& code)
 {
 	auto code_points = code_points_from_str(code);
 	
-	VirtualMachine vm;
-	for (auto const cp : code_points)
-	{
-		if (!vm.next_word(cp))
-        {
-            break;
-        }
-	}
+	VirtualMachine vm(code_points);
+    vm.run();
 }
 
 std::vector<uint16_t> Frontend::code_points_from_str(std::string const& code)

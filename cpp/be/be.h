@@ -10,13 +10,12 @@ namespace Backend
 	class VirtualMachine
 	{
 	public:
-		VirtualMachine();
+		VirtualMachine(std::vector<std::uint16_t> const& init_mem);
 		virtual ~VirtualMachine();
-		
-        // Returns true if the VM will continue to run after this word.
-        // e.g.: false means the VM halted.
-		bool next_word(std::uint16_t word);
 
+        void run();
+        bool is_running();
+		
     private:
         enum class Expectation
         {
@@ -24,6 +23,7 @@ namespace Backend
             Argument
         };
 
+        // An instruction returns false if the VM is supposed to halt.
         typedef bool (VirtualMachine::*InstructionFn)(void);
 
         struct Instruction
@@ -39,6 +39,8 @@ namespace Backend
             int numArguments;
             InstructionFn fn;
         };
+
+        void next_word(std::uint16_t word);
 
         std::uint16_t read_address(std::uint16_t address);
         std::uint16_t write_address(std::uint16_t address, std::uint16_t value);
@@ -56,6 +58,8 @@ namespace Backend
         std::vector<std::uint16_t> arguments;
 
         std::unordered_map<std::uint16_t, Instruction> opcodeInstructionMap;
+
+        std::uint16_t program_counter;
 
         std::stack<std::uint16_t> stack;
         std::array<std::uint16_t, 8> registers;
