@@ -174,7 +174,7 @@ void VirtualMachine::dump() const
 
 void VirtualMachine::code_7_override()
 {
-    // Set R7 to 5
+    // Set R7 to 25734
     std::cerr << "Override: set reg 7 to 25734" << std::endl;
     registers.at(7) = 25734;
     
