@@ -1,4 +1,4 @@
-add_library (be be.cpp)
+add_library (be vm.cpp)
 set_property (TARGET be PROPERTY CXX_STANDARD 11)
 set_property (TARGET be PROPERTY CXX_STANDARD_REQUIRED ON)
 

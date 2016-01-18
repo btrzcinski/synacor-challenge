@@ -1,6 +1,6 @@
 #include "codestr.h"
 
-#include "be.h"
+#include "vm.h"
 
 #include <iostream>
 #include <cstdlib>

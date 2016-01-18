@@ -1,6 +1,6 @@
 #include "file.h"
 
-#include "be.h"
+#include "vm.h"
 
 #include <fstream>
 #include <iostream>

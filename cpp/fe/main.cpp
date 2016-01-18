@@ -1,11 +1,9 @@
 #include <iostream>
 
-#include "be.h"
 #include "args.h"
 #include "codestr.h"
 #include "file.h"
 
-using namespace Backend;
 using namespace Frontend;
 
 int main(int argc, char *argv[])
