@@ -11,4 +11,5 @@ add_definitions(-DUNICODE -D_UNICODE)
 
 add_subdirectory (be)
 add_subdirectory (fe)
+add_subdirectory (ver)
 
