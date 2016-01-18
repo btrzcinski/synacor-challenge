@@ -1,2 +1,6 @@
 # vim files
 *.swp
+
+# disassembly files generated from cpp implementation
+*.sasm
+

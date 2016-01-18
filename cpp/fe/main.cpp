@@ -17,11 +17,14 @@ int main(int argc, char *argv[])
             case Arguments::InputType::Code:
                 interpret_code_str(args.arg);
                 break;
+            case Arguments::InputType::DisassembleFile:
+                disassemble_file(args.arg);
+                break;
             case Arguments::InputType::File:
                 interpret_file(args.arg);
                 break;
             default:
-                std::cout << "Only -c or -f options are supported" << std::endl;
+                std::cout << "Specify -d, -c, or -f" << std::endl;
         }
     }
     catch (std::exception const& ex)

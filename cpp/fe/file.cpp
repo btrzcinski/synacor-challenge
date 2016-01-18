@@ -24,6 +24,16 @@ namespace
     }
 }
 
+void Frontend::disassemble_file(std::string const& filename)
+{
+    auto code_points = code_points_from_file(filename);
+
+    VirtualMachine vm(code_points);
+    vm.disassemble_to_file(filename + ".sasm");
+
+    std::cout << "Disassembled " << filename << " to " << filename + ".sasm" << std::endl;
+}
+
 void Frontend::interpret_file(std::string const& filename)
 {
     auto code_points = code_points_from_file(filename);

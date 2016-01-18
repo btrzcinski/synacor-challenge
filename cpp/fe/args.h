@@ -7,6 +7,7 @@ namespace Frontend
         enum class InputType
         {
             None,
+            DisassembleFile,
             File,
             Code
         };

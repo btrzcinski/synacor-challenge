@@ -21,6 +21,10 @@ Arguments::Arguments(int argc, char *argv[])
         {
             type = InputType::Code;
         }
+        else if (typeArg == "-d")
+        {
+            type = InputType::DisassembleFile;
+        }
         else
         {
             type = InputType::None;

@@ -20,6 +20,8 @@ namespace Backend
         void start_debugging();
         void stop_debugging();
         void dump() const;
+
+        void disassemble_to_file(std::string const& filename) const;
         
     private:
         enum class Expectation

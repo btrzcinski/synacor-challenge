@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdio>
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -155,6 +156,50 @@ void VirtualMachine::dump() const
     std::fprintf(stderr, "R4 = 0x%04x, R5 = 0x%04x, R6 = 0x%04x, R7 = 0x%04x\n",
             registers.at(4), registers.at(5), registers.at(6), registers.at(7));
     std::fprintf(stderr, "\n");
+}
+
+void VirtualMachine::disassemble_to_file(std::string const& filename) const
+{
+    using std::setw;
+    using std::setfill;
+
+    auto file_out = std::ofstream(filename);
+    file_out << std::hex;
+    file_out << "Byte    Addr    Inst  Args" << std::endl;
+
+    auto local_pc = uint16_t(0);
+    while (local_pc < memory.size())
+    {
+        file_out << "0x" << setw(4) << setfill('0') << local_pc * 2 << "  ";
+        file_out << "0x" << setw(4) << setfill('0') << local_pc << "  ";
+
+        auto inst_word = memory.at(local_pc);
+        auto mappedInstruction = opcodeInstructionMap.find(inst_word);
+        if (mappedInstruction == opcodeInstructionMap.end())
+        {
+            file_out << "Unknown: 0x" << setw(4) << setfill('0') << inst_word;
+        }
+        else
+        {
+            auto& inst = mappedInstruction->second;
+            file_out << std::left << setw(4) << setfill(' ') << inst.name << std::right;
+            if (inst.numArguments > 0)
+            {
+                ++local_pc;
+                auto arg = memory.at(local_pc);
+                file_out << "  0x" << setw(4) << setfill('0') << arg;
+                for (auto i = 1; i < inst.numArguments; ++i)
+                {
+                    ++local_pc;
+                    arg = memory.at(local_pc);
+                    file_out << ", 0x" << setw(4) << setfill('0') << arg;
+                }
+            }
+        }
+
+        file_out << std::endl;
+        ++local_pc;
+    }
 }
 
 void VirtualMachine::next_word(uint16_t word)
