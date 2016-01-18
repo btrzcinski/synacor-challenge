@@ -2,21 +2,70 @@
 
 #include <cassert>
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
+
+#include <signal.h>
+#include <string.h>
+#include <sys/select.h>
 
 #define CALL_MEMBER_FN(object,ptrToMember)  ((object)->*(ptrToMember))
 
 using namespace Backend;
-
 using std::uint16_t;
+
+namespace
+{
+    VirtualMachine* g_vm = nullptr;
+
+    void vm_signal_handler(int signum)
+    {
+        if (signum != SIGUSR1 && signum != SIGUSR2)
+        {
+            return;
+        }
+
+        if (g_vm != nullptr)
+        {
+            if (signum == SIGUSR1)
+            {
+                g_vm->dump();
+                g_vm->start_debugging();
+            }
+            else
+            {
+                g_vm->stop_debugging();
+            }
+        }
+    }
+
+    void setup_usr1_signal()
+    {
+        struct sigaction act;
+        act.sa_handler = &vm_signal_handler;
+        bzero(&act.sa_mask, sizeof(act.sa_mask));
+        act.sa_flags = 0;
+
+        if (sigaction(SIGUSR1, &act, nullptr) < 0)
+        {
+            throw std::runtime_error("Could not trap SIGUSR1: sigaction retval < 0");
+        }
+        
+        if (sigaction(SIGUSR2, &act, nullptr) < 0)
+        {
+            throw std::runtime_error("Could not trap SIGUSR2: sigaction retval < 0");
+        }
+    }
+}
 
 VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     running(true),
     expectation(Expectation::Instruction),
     instruction(nullptr),
     program_counter(0),
-    input_log("input.log")
+    input_log("input.log"),
+    debug_mode(false)
 {
     registers.fill(0);
     memory.fill(0);
@@ -45,10 +94,14 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     add_instruction(21, 0, &VirtualMachine::nop_fn);
 
     std::copy(init_mem.cbegin(), init_mem.cend(), memory.begin());
+
+    g_vm = this;
+    setup_usr1_signal();
 }
 
 VirtualMachine::~VirtualMachine()
 {
+    g_vm = nullptr;
 }
 
 void VirtualMachine::run()
@@ -60,15 +113,40 @@ void VirtualMachine::run()
 
     while (running)
     {
+        if (debug_mode)
+        {
+            dump();
+        }
+
         auto word = memory.at(program_counter);
         next_word(word);
         ++program_counter;
     }
 }
 
-bool VirtualMachine::is_running()
+bool VirtualMachine::is_running() const
 {
     return running;
+}
+
+void VirtualMachine::start_debugging()
+{
+    debug_mode = true;
+}
+
+void VirtualMachine::stop_debugging()
+{
+    debug_mode = false;
+}
+
+void VirtualMachine::dump() const
+{
+    std::cerr << "PC = " << program_counter << " -> " << memory.at(program_counter) << std::endl;
+    for (auto i = 0; i < 8; i += 2)
+    {
+        std::cerr << "Reg " << i << " = " << std::setw(5) << registers.at(i) << ", ";
+        std::cerr << "Reg " << i + 1 << " = " << std::setw(5) << registers.at(i + 1) << std::endl;
+    }
 }
 
 void VirtualMachine::next_word(uint16_t word)
@@ -479,10 +557,19 @@ bool VirtualMachine::in_fn()
 
     auto a = check_register_address(arguments.at(0));
     char val;
-    std::cin.get(val);
-    input_log.put(val);
-    assert(!input_log.bad());
-    input_log.flush();
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(0, &readfds);
+    select(1, &readfds, nullptr, nullptr, nullptr);
+
+    std::cin.read(&val, 1);
+    if (val != '\0')
+    {
+        input_log.put(val);
+        assert(!input_log.bad());
+        input_log.flush();
+    }
 
     registers.at(a) = uint16_t(val);
 

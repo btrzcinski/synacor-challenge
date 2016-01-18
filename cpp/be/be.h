@@ -15,7 +15,11 @@ namespace Backend
         virtual ~VirtualMachine();
 
         void run();
-        bool is_running();
+        bool is_running() const;
+
+        void start_debugging();
+        void stop_debugging();
+        void dump() const;
         
     private:
         enum class Expectation
@@ -96,6 +100,7 @@ namespace Backend
         std::array<std::uint16_t, 8> registers;
         std::array<std::uint16_t, 0x8000> memory;
 
+        bool debug_mode;
         std::ofstream input_log;
     };
 }
