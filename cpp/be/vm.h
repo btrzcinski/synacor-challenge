@@ -33,21 +33,23 @@ namespace Backend
 
         struct Instruction
         {
-            Instruction(std::uint16_t opcode, int numArguments, InstructionFn fn) :
+            Instruction(std::uint16_t opcode, std::string name, int numArguments, InstructionFn fn) :
                 opcode(opcode),
+                name(name),
                 numArguments(numArguments),
                 fn(fn)
             {
             }
 
             std::uint16_t opcode;
+            std::string name;
             int numArguments;
             InstructionFn fn;
         };
 
         void next_word(std::uint16_t word);
 
-        void add_instruction(std::uint16_t opcode, int numArguments, InstructionFn fn);
+        void add_instruction(std::uint16_t opcode, std::string name, int numArguments, InstructionFn fn);
 
         // 0..32767 returns the value itself
         // 32768..32775 return the values from registers 0-7

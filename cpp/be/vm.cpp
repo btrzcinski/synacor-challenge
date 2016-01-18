@@ -1,8 +1,8 @@
 #include "vm.h"
 
 #include <cassert>
+#include <cstdio>
 #include <algorithm>
-#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -70,28 +70,28 @@ VirtualMachine::VirtualMachine(std::vector<uint16_t> const& init_mem) :
     registers.fill(0);
     memory.fill(0);
 
-    add_instruction(0,  0, &VirtualMachine::halt_fn);
-    add_instruction(1,  2, &VirtualMachine::set_fn);
-    add_instruction(2,  1, &VirtualMachine::push_fn);
-    add_instruction(3,  1, &VirtualMachine::pop_fn);
-    add_instruction(4,  3, &VirtualMachine::eq_fn);
-    add_instruction(5,  3, &VirtualMachine::gt_fn);
-    add_instruction(6,  1, &VirtualMachine::jmp_fn);
-    add_instruction(7,  2, &VirtualMachine::jt_fn);
-    add_instruction(8,  2, &VirtualMachine::jf_fn);
-    add_instruction(9,  3, &VirtualMachine::add_fn);
-    add_instruction(10, 3, &VirtualMachine::mult_fn);
-    add_instruction(11, 3, &VirtualMachine::mod_fn);
-    add_instruction(12, 3, &VirtualMachine::and_fn);
-    add_instruction(13, 3, &VirtualMachine::or_fn);
-    add_instruction(14, 2, &VirtualMachine::not_fn);
-    add_instruction(15, 2, &VirtualMachine::rmem_fn);
-    add_instruction(16, 2, &VirtualMachine::wmem_fn);
-    add_instruction(17, 1, &VirtualMachine::call_fn);
-    add_instruction(18, 0, &VirtualMachine::ret_fn);
-    add_instruction(19, 1, &VirtualMachine::out_fn);
-    add_instruction(20, 1, &VirtualMachine::in_fn);
-    add_instruction(21, 0, &VirtualMachine::nop_fn);
+    add_instruction(0,  "HALT", 0, &VirtualMachine::halt_fn);
+    add_instruction(1,  "SET",  2, &VirtualMachine::set_fn);
+    add_instruction(2,  "PUSH", 1, &VirtualMachine::push_fn);
+    add_instruction(3,  "POP",  1, &VirtualMachine::pop_fn);
+    add_instruction(4,  "EQ",   3, &VirtualMachine::eq_fn);
+    add_instruction(5,  "GT",   3, &VirtualMachine::gt_fn);
+    add_instruction(6,  "JMP",  1, &VirtualMachine::jmp_fn);
+    add_instruction(7,  "JT",   2, &VirtualMachine::jt_fn);
+    add_instruction(8,  "JF",   2, &VirtualMachine::jf_fn);
+    add_instruction(9,  "ADD",  3, &VirtualMachine::add_fn);
+    add_instruction(10, "MULT", 3, &VirtualMachine::mult_fn);
+    add_instruction(11, "MOD",  3, &VirtualMachine::mod_fn);
+    add_instruction(12, "AND",  3, &VirtualMachine::and_fn);
+    add_instruction(13, "OR",   3, &VirtualMachine::or_fn);
+    add_instruction(14, "NOT",  2, &VirtualMachine::not_fn);
+    add_instruction(15, "RMEM", 2, &VirtualMachine::rmem_fn);
+    add_instruction(16, "WMEM", 2, &VirtualMachine::wmem_fn);
+    add_instruction(17, "CALL", 1, &VirtualMachine::call_fn);
+    add_instruction(18, "RET",  0, &VirtualMachine::ret_fn);
+    add_instruction(19, "OUT",  1, &VirtualMachine::out_fn);
+    add_instruction(20, "IN",   1, &VirtualMachine::in_fn);
+    add_instruction(21, "NOOP", 0, &VirtualMachine::nop_fn);
 
     std::copy(init_mem.cbegin(), init_mem.cend(), memory.begin());
 
@@ -141,12 +141,20 @@ void VirtualMachine::stop_debugging()
 
 void VirtualMachine::dump() const
 {
-    std::cerr << "PC = " << program_counter << " -> " << memory.at(program_counter) << std::endl;
-    for (auto i = 0; i < 8; i += 2)
+    auto word = memory.at(program_counter);
+    std::fprintf(stderr, "PC = 0x%04x -> 0x%04x", program_counter, word);
+    auto mappedInstruction = opcodeInstructionMap.find(word);
+    if (mappedInstruction != opcodeInstructionMap.end())
     {
-        std::cerr << "Reg " << i << " = " << std::setw(5) << registers.at(i) << ", ";
-        std::cerr << "Reg " << i + 1 << " = " << std::setw(5) << registers.at(i + 1) << std::endl;
+        auto& pcInst = mappedInstruction->second;
+        std::fprintf(stderr, " (%s, %d args)", pcInst.name.c_str(), pcInst.numArguments);
     }
+    std::fprintf(stderr, "\n");
+    std::fprintf(stderr, "R0 = 0x%04x, R1 = 0x%04x, R2 = 0x%04x, R3 = 0x%04x\n",
+            registers.at(0), registers.at(1), registers.at(2), registers.at(3));
+    std::fprintf(stderr, "R4 = 0x%04x, R5 = 0x%04x, R6 = 0x%04x, R7 = 0x%04x\n",
+            registers.at(4), registers.at(5), registers.at(6), registers.at(7));
+    std::fprintf(stderr, "\n");
 }
 
 void VirtualMachine::next_word(uint16_t word)
@@ -187,9 +195,9 @@ void VirtualMachine::next_word(uint16_t word)
     }
 }
 
-void VirtualMachine::add_instruction(uint16_t opcode, int numArguments, InstructionFn fn)
+void VirtualMachine::add_instruction(uint16_t opcode, std::string name, int numArguments, InstructionFn fn)
 {
-    opcodeInstructionMap.emplace(opcode, Instruction(opcode, numArguments, fn));
+    opcodeInstructionMap.emplace(opcode, Instruction(opcode, name, numArguments, fn));
 }
 
 uint16_t VirtualMachine::lookup_value(uint16_t value)
