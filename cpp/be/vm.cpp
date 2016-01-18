@@ -31,8 +31,15 @@ namespace
         {
             if (signum == SIGUSR1)
             {
-                g_vm->dump();
-                g_vm->start_debugging();
+                if (!g_vm->debugging())
+                {                    
+                    g_vm->start_debugging();
+                    g_vm->dump();
+                }
+                else
+                {
+                    g_vm->stop_debugging();
+                }
             }
             else
             {
@@ -130,14 +137,21 @@ bool VirtualMachine::is_running() const
     return running;
 }
 
+bool VirtualMachine::debugging() const
+{
+    return debug_mode;
+}
+
 void VirtualMachine::start_debugging()
 {
     debug_mode = true;
+    std::cerr << "Started debugging" << std::endl;
 }
 
 void VirtualMachine::stop_debugging()
 {
     debug_mode = false;
+    std::cerr << "Stopped debugging" << std::endl;
 }
 
 void VirtualMachine::dump() const

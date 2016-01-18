@@ -17,6 +17,7 @@ namespace Backend
         void run();
         bool is_running() const;
 
+        bool debugging() const;
         void start_debugging();
         void stop_debugging();
         void dump() const;
