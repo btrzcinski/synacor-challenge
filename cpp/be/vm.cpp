@@ -175,8 +175,8 @@ void VirtualMachine::dump() const
 void VirtualMachine::code_7_override()
 {
     // Set R7 to 5
-    std::cerr << "Override: set reg 7 to 5" << std::endl;
-    registers.at(7) = 5;
+    std::cerr << "Override: set reg 7 to 25734" << std::endl;
+    registers.at(7) = 25734;
     
     // Set 0x1566 to JMP 0x157a
     std::cerr << "Override: set [0x1566, 0x1567] to JMP 0x157a" << std::endl;

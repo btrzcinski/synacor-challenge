@@ -1,4 +1,4 @@
-add_executable (ver ver.c)
-set_property (TARGET ver PROPERTY C_STANDARD 11)
-set_property (TARGET ver PROPERTY C_STANDARD_REQUIRED ON)
+add_executable (ver ver.cpp)
+set_property (TARGET ver PROPERTY CXX_STANDARD 11)
+set_property (TARGET ver PROPERTY CXX_STANDARD_REQUIRED ON)
 
