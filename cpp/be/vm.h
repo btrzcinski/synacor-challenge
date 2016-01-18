@@ -21,6 +21,8 @@ namespace Backend
         void stop_debugging();
         void dump() const;
 
+        void code_7_override();
+
         void disassemble_to_file(std::string const& filename) const;
         
     private:

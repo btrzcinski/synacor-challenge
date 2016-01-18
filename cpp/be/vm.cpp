@@ -36,7 +36,7 @@ namespace
             }
             else
             {
-                g_vm->stop_debugging();
+                g_vm->code_7_override();
             }
         }
     }
@@ -156,6 +156,18 @@ void VirtualMachine::dump() const
     std::fprintf(stderr, "R4 = 0x%04x, R5 = 0x%04x, R6 = 0x%04x, R7 = 0x%04x\n",
             registers.at(4), registers.at(5), registers.at(6), registers.at(7));
     std::fprintf(stderr, "\n");
+}
+
+void VirtualMachine::code_7_override()
+{
+    // Set R7 to 5
+    std::cerr << "Override: set reg 7 to 5" << std::endl;
+    registers.at(7) = 5;
+    
+    // Set 0x1566 to JMP 0x157a
+    std::cerr << "Override: set [0x1566, 0x1567] to JMP 0x157a" << std::endl;
+    memory.at(0x1566) = 6;
+    memory.at(0x1567) = 0x157a;
 }
 
 void VirtualMachine::disassemble_to_file(std::string const& filename) const
