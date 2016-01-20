@@ -189,7 +189,7 @@ void VirtualMachine::disassemble_to_file(std::string const& filename) const
     using std::setw;
     using std::setfill;
 
-    auto file_out = std::ofstream(filename);
+    std::ofstream file_out(filename);
     file_out << std::hex;
     file_out << "Byte    Addr    Inst  Args" << std::endl;
 
