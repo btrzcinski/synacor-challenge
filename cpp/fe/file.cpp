@@ -11,19 +11,6 @@ using namespace Backend;
 using namespace Frontend;
 using std::uint16_t;
 
-namespace
-{
-    uint16_t code_point_from_str(std::string const& cp)
-    {
-        auto cp_i = std::atoi(cp.c_str());
-        if (cp_i > UINT16_MAX)
-        {
-            throw std::overflow_error{"Code point greater than max unsigned 16-bit int"};
-        }
-        return static_cast<uint16_t>(cp_i);
-    }
-}
-
 void Frontend::disassemble_file(std::string const& filename)
 {
     auto code_points = code_points_from_file(filename);
